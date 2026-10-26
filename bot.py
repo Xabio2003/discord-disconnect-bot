@@ -1,9 +1,31 @@
 import asyncio
+import http.server
 import os
+import threading
 import discord
 from discord.ext import commands
 
-# Configurar intents necesarios
+# --- Servidor HTTP falso para mantener contento a Render ---
+PORT = int(os.environ.get("PORT", 10000))
+
+
+class SimpleHandler(http.server.BaseHTTPRequestHandler):
+
+  def do_GET(self):
+    self.send_response(200)
+    self.end_headers()
+    self.wfile.write(b"Bot is alive!")
+
+
+def run_web_server():
+  server = http.server.HTTPServer(("0.0.0.0", PORT), SimpleHandler)
+  server.serve_forever()
+
+
+# Iniciar el servidor web en segundo plano
+threading.Thread(target=run_web_server, daemon=True).start()
+
+# --- Configuración del Bot de Discord ---
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
@@ -17,9 +39,7 @@ async def on_ready():
 
 
 @bot.command(name="desconectar", help="Desconecta a un usuario tras X minutos.")
-@commands.has_permissions(
-    move_members=True
-)  # Requiere permiso de mover miembros en Discord
+@commands.has_permissions(move_members=True)
 async def desconectar(ctx, miembro: discord.Member, minutos: int):
   if not miembro.voice or not miembro.voice.channel:
     await ctx.send(
@@ -32,13 +52,11 @@ async def desconectar(ctx, miembro: discord.Member, minutos: int):
       f" en **{minutos} minuto(s)**."
   )
 
-  # Esperar el tiempo indicado (convertido a segundos)
   await asyncio.sleep(minutos * 60)
 
-  # Comprobar si todavía sigue en el canal de voz al terminar el tiempo
   if miembro.voice and miembro.voice.channel:
     try:
-      await miembro.move_to(None)  # Esto lo saca del canal de voz
+      await miembro.move_to(None)
       await ctx.send(
           f"🔌 El tiempo ha terminado. {miembro.mention} ha sido desconectado"
           " del canal de voz."
@@ -52,5 +70,4 @@ async def desconectar(ctx, miembro: discord.Member, minutos: int):
     )
 
 
-# El token se toma de forma segura de las variables del servidor en la nube
 bot.run(os.getenv("DISCORD_TOKEN"))
