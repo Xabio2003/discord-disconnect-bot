@@ -5,7 +5,6 @@ import threading
 import discord
 from discord.ext import commands
 
-# Servidor web falso para mantener contento a Render
 PORT = int(os.environ.get("PORT", 10000))
 
 
@@ -24,7 +23,6 @@ def run_web_server():
 
 threading.Thread(target=run_web_server, daemon=True).start()
 
-# Configuración de Intents
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
@@ -64,19 +62,19 @@ async def desconectar(ctx, miembro: discord.Member, minutos: int):
         )
       except discord.Forbidden:
         await ctx.send(
-            "❌ **Error:** El bot no tiene permisos para mover a este usuario"
-            " (asegúrate de que el rol del bot está por encima del usuario en"
-            " la lista de roles del servidor)."
+            "❌ **Error:** El bot necesita el permiso de **Mover Miembros** en"
+            " los ajustes del servidor y su rol debe estar por encima del"
+            " usuario."
         )
       except Exception as e:
         await ctx.send(f"❌ No pude desconectar a {miembro.display_name}: {e}")
     else:
       await ctx.send(
           f"⏱️ El tiempo terminó, pero {miembro.display_name} ya había salido del"
-          " canal por su cuenta."
+          " canal."
       )
   except Exception as e:
-    await ctx.send(f"❌ Ocurrió un error inesperado: {e}")
+    await ctx.send(f"❌ Ocurrió un error: {e}")
 
 
 bot.run(os.getenv("DISCORD_TOKEN"))
