@@ -64,9 +64,9 @@ async def desconectar(ctx, miembro: discord.Member, minutos: int):
         )
       except discord.Forbidden:
         await ctx.send(
-            "❌ **Error de permisos:** El bot no tiene permiso de **Mover"
-            " Miembros** en el servidor, o el rol del bot está por debajo del"
-            " usuario que intentas sacar."
+            "❌ **Error:** El bot no tiene permisos para mover a este usuario"
+            " (asegúrate de que el rol del bot está por encima del usuario en"
+            " la lista de roles del servidor)."
         )
       except Exception as e:
         await ctx.send(f"❌ No pude desconectar a {miembro.display_name}: {e}")
